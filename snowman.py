@@ -2,6 +2,7 @@ import pygame
 import sys
 from pygame.locals import *
 from enum import Enum
+import random
 #add variable named BLUE and set to color used for background
 BLUE = (81, 95, 255)
 BLACK = (0, 0, 0)
@@ -23,6 +24,9 @@ player_posx = screen_width/2
 player_posy = screen_height - player_height
 snowman=pygame.image.load("images/snowman.png").convert_alpha()
 snowman = pygame.transform.scale(snowman, (player_width, player_height))
+
+water_drop = pygame.image.load("images/drop.png").convert_alpha()
+water_drop = pygame.transform.scale(water_drop, (20, 50))
 
 
 fps = 60
@@ -56,6 +60,9 @@ class Player:
 
 
 player = Player(snowman, player_speed, player_posx, player_posy, player_width, player_height)
+drop_list = []
+for x in range(0,6):
+    drop_list.append(Player(water_drop, 7, random.randint(100, screen_width - 100), random.randint(-500, -100), 50, 100))
 
 
 def intro_screen():
@@ -98,6 +105,12 @@ while True:
     #display image at the bottom in the middle of the screen
 
         game_display.blit(player.image, (player.posx, player.posy))
+        for drop in drop_list:
+            game_display.blit(drop.image, (drop.posx, drop.posy))
+            drop.posy += drop.speed
+            if drop.posy >= screen_height + drop.height:
+                drop.posx =  random.randint(100, screen_width - 100)
+                drop.posy = random.randint(-500, -100)
 
     elif game_state == 'INTRO':
         intro_screen()
