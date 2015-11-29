@@ -44,7 +44,7 @@ class Player:
 		self.rect = self.rect = Rect(self.posx, self.posy + 200, 10, 1)
 
 
-player = Player(snowman, 7, 200, 300, 375, 200)
+player = Player(snowman, 7, 200, 300, 200, 200)
 
 
 while play:
@@ -55,16 +55,19 @@ while play:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 pressed_left = True
-                player.posx -= 10
+                x -= 10
             if event.key == pygame.K_RIGHT:
                 pressed_right = True
-                player.posx += 10
+                x += 10
 
     game_display.fill(BLUE)
 
     #display image at the bottom in the middle of the screen
-
+<<<<<<< HEAD
+    game_display.blit(snowman, (x,y))
+=======
     game_display.blit(player.image, (player.posx, player.posy))
+>>>>>>> origin/master
 
     pygame.display.update()
     clock.tick(fps)
