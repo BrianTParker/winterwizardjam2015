@@ -43,6 +43,9 @@ class Player:
 		self.posx += speed
 		self.rect = self.rect = Rect(self.posx, self.posy + 200, 10, 1)
 
+    def move_left(self)
+        self.movepos
+
 
 player = Player(snowman, 7, 200, 300, 375, 200)
 
@@ -54,10 +57,10 @@ while play:
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                pressed_left = True
+
                 player.posx -= 10
             if event.key == pygame.K_RIGHT:
-                pressed_right = True
+            
                 player.posx += 10
 
     game_display.fill(BLUE)
