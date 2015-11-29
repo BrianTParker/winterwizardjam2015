@@ -10,7 +10,7 @@ game_display = pygame.display.set_mode((800,600))
 pygame.display.set_caption('Winter Wizard Jam')
 
 #load snowman image. I was unable to figure out how to load without full path. error when /images/snowman.png
-snowman=pygame.image.load("C:/winterwizardjam2015/winterwizardjam2015/images/snowman.png").convert_alpha()
+snowman=pygame.image.load("images/snowman.png").convert_alpha()
 
 fps = 60
 clock = pygame.time.Clock()
