@@ -8,13 +8,16 @@ pygame.init()
 print("hello")
 screen_width = 800
 screen_height = 600
+
 game_display = pygame.display.set_mode((screen_width,screen_height))
 
 pygame.display.set_caption('Winter Wizard Jam')
 
 #load snowman image. I was unable to figure out how to load without full path. error when /images/snowman.png
+player_width = 156
+player_height = 237
 snowman=pygame.image.load("images/snowman.png").convert_alpha()
-#snowman = pygame.transform.scale(snowman, (200, 300))
+snowman = pygame.transform.scale(snowman, (player_width, player_height))
 x = 250
 y = 300
 
@@ -47,7 +50,7 @@ class Player:
 		self.rect = self.rect = Rect(self.posx, self.posy + 200, 10, 1)
 
 
-player = Player(snowman, 7, 200, 350, 156, 237)
+player = Player(snowman, 7, 200, screen_height - player_height, player_width, player_height)
 
 
 while play:
