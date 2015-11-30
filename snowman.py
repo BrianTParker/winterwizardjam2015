@@ -9,6 +9,15 @@ BLACK = (0, 0, 0)
 
 pygame.init()
 
+
+FREQ = 44100   # same as audio CD
+BITSIZE = -16  # unsigned 16 bit
+CHANNELS = 2   # 1 == mono, 2 == stereo
+BUFFER = 1024  # audio buffer size in no. of samples
+
+
+pygame.mixer.init(FREQ, BITSIZE, CHANNELS, BUFFER)
+
 screen_width = 800
 screen_height = 600
 
@@ -64,8 +73,9 @@ drop_list = []
 for x in range(0,6):
     drop_list.append(Player(water_drop, 7, random.randint(100, screen_width - 100), random.randint(-500, -100), 50, 100))
 
-
+music_playing = False
 def intro_screen():
+    global music_playing
     title_font = pygame.font.Font(None, 100)
     title = title_font.render("Winter Wizard Jam:", 1, BLACK)
     title2 = title_font.render("Snowman Panic", 1, BLACK)
@@ -74,6 +84,10 @@ def intro_screen():
     game_display.blit(title, (100, 40))
     game_display.blit(title2,(100, 120))
     game_display.blit(start, (200, 500))
+    if music_playing == False:
+        music_playing = True
+        pygame.mixer.music.load('music/menutrack.ogg')
+        pygame.mixer.music.play(-1)
 
 while True:
     game_display.fill(BLUE)
@@ -117,6 +131,7 @@ while True:
         keystate = pygame.key.get_pressed()
         if keystate[K_SPACE]:
             game_state = 'PLAY'
+            pygame.mixer.music.stop()
     pygame.display.update()
     clock.tick(fps)
 
