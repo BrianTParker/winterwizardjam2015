@@ -3,7 +3,7 @@ import sys
 from pygame.locals import *
 from enum import Enum
 import random
-#add variable named BLUE and set to color used for background
+
 BLUE = (81, 95, 255)
 BLACK = (0, 0, 0)
 
@@ -25,7 +25,6 @@ game_display = pygame.display.set_mode((screen_width,screen_height))
 
 pygame.display.set_caption('Winter Wizard Jam')
 
-#load snowman image. I was unable to figure out how to load without full path. error when /images/snowman.png
 player_width = 156
 player_height = 237
 player_speed = 7
@@ -78,16 +77,30 @@ def intro_screen():
     global music_playing
     title_font = pygame.font.Font(None, 100)
     title = title_font.render("Winter Wizard Jam:", 1, BLACK)
+    textrect = title.get_rect()
+    textrect.centerx = game_display.get_rect().centerx
+    textrect.top = game_display.get_rect().top + 40
+    game_display.blit(title, textrect)
+
     title2 = title_font.render("Snowman Panic", 1, BLACK)
+    textrect = title2.get_rect()
+    textrect.centerx = game_display.get_rect().centerx
+    textrect.top = game_display.get_rect().top + 110
+    game_display.blit(title2, textrect)
+
     instruction_font = pygame.font.Font(None, 50)
     start = instruction_font.render("Press Space Bar to start!", 1, BLACK)
-    game_display.blit(title, (100, 40))
-    game_display.blit(title2,(100, 120))
-    game_display.blit(start, (200, 500))
+
     if music_playing == False:
         music_playing = True
         pygame.mixer.music.load('music/menutrack.ogg')
         pygame.mixer.music.play(-1)
+
+    textrect = start.get_rect()
+    textrect.centerx = game_display.get_rect().centerx
+    textrect.bottom = game_display.get_rect().bottom - 40
+    game_display.blit(start, textrect)
+
 
 while True:
     game_display.fill(BLUE)
@@ -95,14 +108,6 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             quit()
-
-        # elif event.type == pygame.KEYDOWN:
-        #     if event.key == pygame.K_LEFT:
-        #         pressed_left = True
-        #         player.posx -= 10
-        #     if event.key == pygame.K_RIGHT:
-        #         pressed_right = True
-        #         player.posx += 10
 
     if game_state == 'PLAY':
 
@@ -113,10 +118,6 @@ while True:
         if keystate[K_RIGHT]:
             if player.posx <= screen_width - (player.width):
                 player.posx += player.speed
-
-
-
-    #display image at the bottom in the middle of the screen
 
         game_display.blit(player.image, (player.posx, player.posy))
         for drop in drop_list:
