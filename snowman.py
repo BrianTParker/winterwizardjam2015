@@ -36,6 +36,8 @@ snowman = pygame.transform.scale(snowman, (player_width, player_height))
 water_drop = pygame.image.load("images/drop.png").convert_alpha()
 water_drop = pygame.transform.scale(water_drop, (20, 50))
 
+melted=pygame.image.load("images/melted.png").convert_alpha()
+
 
 fps = 60
 clock = pygame.time.Clock()
@@ -126,6 +128,8 @@ while True:
             if drop.posy >= screen_height + drop.height:
                 drop.posx =  random.randint(100, screen_width - 100)
                 drop.posy = random.randint(-500, -100)
+
+        game_display.blit(melted, (250, 250))
 
     elif game_state == 'INTRO':
         intro_screen()
