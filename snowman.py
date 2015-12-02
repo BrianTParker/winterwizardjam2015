@@ -48,19 +48,21 @@ play = True
 
 
 
-class Player:
+class Player(pygame.sprite.Sprite):
     def __init__(self, image, speed, posx, posy, width, height):
-
+        pygame.sprite.Sprite.__init__(self)
         self.image = image
         self.speed = speed
         self.posx = posx
         self.posy = posy
         self.width = width
         self.height = height
+        self.rect = self.image.get_rect()
 
 
     def update_rect(self, newx, newy):
-        self.rect = Rect(newx, newy, width, height)
+        rect.x = newx
+        rect.y = newy
 
     def update_image(self, new_image):
         self.image = new_image
@@ -72,7 +74,7 @@ class Player:
 player = Player(snowman, player_speed, player_posx, player_posy, player_width, player_height)
 drop_list = []
 for x in range(0,6):
-    drop_list.append(Player(water_drop, 7, random.randint(100, screen_width - 100), random.randint(-500, -100), 50, 100))
+    drop_list.append(Player(water_drop, 4, random.randint(100, screen_width - 100), random.randint(-500, -100), 50, 100))
 
 music_playing = False
 def intro_screen():
@@ -123,6 +125,8 @@ while True:
 
         game_display.blit(player.image, (player.posx, player.posy))
         for drop in drop_list:
+            if pygame.sprite.collide_rect(player, drop):
+                print("Collision")
             game_display.blit(drop.image, (drop.posx, drop.posy))
             drop.posy += drop.speed
             if drop.posy >= screen_height + drop.height:
