@@ -37,6 +37,7 @@ water_drop = pygame.image.load("images/drop.png").convert_alpha()
 water_drop = pygame.transform.scale(water_drop, (20, 50))
 
 melted=pygame.image.load("images/melted.png").convert_alpha()
+melted = pygame.transform.scale(melted, (player_width, player_height))
 
 
 fps = 60
@@ -57,12 +58,22 @@ class Player(pygame.sprite.Sprite):
         self.posy = posy
         self.width = width
         self.height = height
-        self.rect = self.image.get_rect()
+        self.rect = Rect(self.posx, self.posy, self.width, self.height)
 
+    def move_right(self):
+        self.posx += self.speed
+        self.rect = Rect(self.posx, self.posy, self.width, self.height)
 
-    def update_rect(self, newx, newy):
-        rect.x = newx
-        rect.y = newy
+    def move_left(self):
+        self.posx -= self.speed
+        self.rect = Rect(self.posx, self.posy, self.width, self.height)
+
+    def move_down(self):
+        self.posy += self.speed
+        self.rect = Rect(self.posx, self.posy, self.width, self.height)
+    def update_rect(self):
+        self.rect.x = self.posx
+        self.rect.y = self.posy
 
     def update_image(self, new_image):
         self.image = new_image
@@ -70,11 +81,15 @@ class Player(pygame.sprite.Sprite):
     def change_speed(self, new_speed):
         self.speed = new_speed
 
+    def get_random_position(self):
+        self.posx =  random.randint(100, screen_width - 100)
+        self.posy = random.randint(-500, -100)
+        self.rect = Rect(self.posx, self.posy, 10, self.height)
 
-player = Player(snowman, player_speed, player_posx, player_posy, player_width, player_height)
+player = Player(snowman, player_speed, player_posx, player_posy, player_width/2, player_height)
 drop_list = []
-for x in range(0,6):
-    drop_list.append(Player(water_drop, 4, random.randint(100, screen_width - 100), random.randint(-500, -100), 50, 100))
+for x in range(0,4):
+    drop_list.append(Player(water_drop, 4, random.randint(100, screen_width - 100), random.randint(-500, -100), 20, 50))
 
 music_playing = False
 def intro_screen():
@@ -105,7 +120,6 @@ def intro_screen():
     textrect.bottom = game_display.get_rect().bottom - 40
     game_display.blit(start, textrect)
 
-
 while True:
     game_display.fill(BLUE)
     for event in pygame.event.get():
@@ -118,22 +132,29 @@ while True:
         keystate = pygame.key.get_pressed()
         if keystate[K_LEFT]:
             if player.posx >= 0:
-                player.posx -= player.speed
+                player.move_left()
+
         if keystate[K_RIGHT]:
             if player.posx <= screen_width - (player.width):
-                player.posx += player.speed
+                player.move_right()
+
 
         game_display.blit(player.image, (player.posx, player.posy))
-        for drop in drop_list:
-            if pygame.sprite.collide_rect(player, drop):
-                print("Collision")
-            game_display.blit(drop.image, (drop.posx, drop.posy))
-            drop.posy += drop.speed
-            if drop.posy >= screen_height + drop.height:
-                drop.posx =  random.randint(100, screen_width - 100)
-                drop.posy = random.randint(-500, -100)
+        for drop1 in drop_list:
 
-        game_display.blit(melted, (250, 250))
+
+            drop1.move_down()
+
+            game_display.blit(drop1.image, (drop1.posx, drop1.posy))
+            if drop1.posy >= screen_height + drop1.height:
+                drop1.get_random_position()
+            if pygame.sprite.collide_mask(player, drop1):
+                player.update_image(melted)
+
+
+
+
+        #game_display.blit(melted, (250, 250))
 
     elif game_state == 'INTRO':
         intro_screen()
@@ -146,3 +167,7 @@ while True:
 
 pygame.quit()
 quit()
+
+
+def check_for_collision(obj1, obj2):
+    pass
