@@ -3,6 +3,7 @@ import sys
 from pygame.locals import *
 from enum import Enum
 import random
+import threading
 
 BLUE = (81, 95, 255)
 BLACK = (0, 0, 0)
@@ -47,7 +48,8 @@ game_state = 'INTRO'
 
 play = True
 
-
+time = 1 #time in seconds
+pygame.time.set_timer(USEREVENT+1, 1000)#1 second is 1000 milliseconds
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, image, speed, posx, posy, width, height):
@@ -120,14 +122,33 @@ def intro_screen():
     textrect.bottom = game_display.get_rect().bottom - 40
     game_display.blit(start, textrect)
 
+
+
+
+
+
+kick_off_timer = False
 while True:
+
     game_display.fill(BLUE)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             quit()
 
+        if event.type == USEREVENT+1:
+            time += 1
+
     if game_state == 'PLAY':
+
+
+        counter_font = pygame.font.Font(None, 100)
+        counter = counter_font.render(str(time), 1, BLACK)
+        textrect = counter.get_rect()
+        textrect.centerx = game_display.get_rect().centerx
+        textrect.top = game_display.get_rect().top + 40
+        game_display.blit(counter, textrect)
+
 
         keystate = pygame.key.get_pressed()
         if keystate[K_LEFT]:
@@ -169,5 +190,4 @@ pygame.quit()
 quit()
 
 
-def check_for_collision(obj1, obj2):
-    pass
+            # call a function
