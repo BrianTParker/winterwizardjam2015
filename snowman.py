@@ -48,7 +48,7 @@ game_state = 'INTRO'
 
 play = True
 
-time = 1 #time in seconds
+time = 0 #time in seconds
 pygame.time.set_timer(USEREVENT+1, 1000)#1 second is 1000 milliseconds
 
 class Player(pygame.sprite.Sprite):
@@ -124,7 +124,9 @@ def intro_screen():
 
 
 
-
+def increase_drop_rate():
+    for drops in drop_list:
+        drops.speed += 5
 
 
 kick_off_timer = False
@@ -136,8 +138,11 @@ while True:
             pygame.quit()
             quit()
 
-        if event.type == USEREVENT+1:
-            time += 1
+        if game_state == 'PLAY':
+            if event.type == USEREVENT+1:
+                time += 1
+                if time % 10 == 0:
+                    increase_drop_rate()
 
     if game_state == 'PLAY':
 
@@ -188,6 +193,5 @@ while True:
 
 pygame.quit()
 quit()
-
 
             # call a function
