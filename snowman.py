@@ -174,7 +174,7 @@ while True:
         game_state = 'DEAD'
     if just_got_hit == True:
         hit_buffer += 1
-        if hit_buffer >= 50:
+        if hit_buffer >= 100:
             hit_buffer = 0
             just_got_hit = False
 
