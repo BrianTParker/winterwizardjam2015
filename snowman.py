@@ -170,6 +170,8 @@ kick_off_timer = False
 
 while True:
 
+    if player.health == 0:
+        game_state = 'DEAD'
     if just_got_hit == True:
         hit_buffer += 1
         if hit_buffer >= 50:
@@ -234,6 +236,9 @@ while True:
         if keystate[K_SPACE]:
             game_state = 'PLAY'
             pygame.mixer.music.stop()
+    elif game_state == 'DEAD':
+        game_display.blit(counter, textrect)
+        game_display.blit(player.image, (player.posx, player.posy))
     pygame.display.update()
     clock.tick(fps)
 
