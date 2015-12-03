@@ -11,10 +11,17 @@ BLACK = (0, 0, 0)
 pygame.init()
 
 
+music_playing = False
+
 FREQ = 44100   # same as audio CD
 BITSIZE = -16  # unsigned 16 bit
 CHANNELS = 2   # 1 == mono, 2 == stereo
 BUFFER = 1024  # audio buffer size in no. of samples
+
+if music_playing == False:
+    music_playing = True
+    pygame.mixer.music.load('music/menutrack.ogg')
+    pygame.mixer.music.play(-1)
 
 
 pygame.mixer.init(FREQ, BITSIZE, CHANNELS, BUFFER)
@@ -103,7 +110,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = new_speed
 
     def get_random_position(self):
-        self.posx =  random.randint(100, screen_width - 100)
+        self.posx =  random.randint(10, screen_width - 100)
         self.posy = random.randint(-500, -100)
         self.rect = Rect(self.posx, self.posy, 10, self.height)
 
@@ -121,14 +128,13 @@ class Player(pygame.sprite.Sprite):
 drop_list = []
 player = Player(snowman, player_speed, player_posx, player_posy, player_width/2, player_height)
 for x in range(0,4):
-    drop_list.append(Player(water_drop, 4, random.randint(100, screen_width - 100), random.randint(-500, -100), 20, 50))
+    drop_list.append(Player(water_drop, 4, random.randint(10, screen_width - 100), random.randint(-500, -100), 20, 50))
 
 
 
 hit_buffer = 0
 just_got_hit = False
 
-music_playing = False
 def intro_screen():
     global music_playing
     title_font = pygame.font.Font(None, 100)
@@ -147,10 +153,7 @@ def intro_screen():
     instruction_font = pygame.font.Font(None, 50)
     start = instruction_font.render("Press Space Bar to start!", 1, BLACK)
 
-    if music_playing == False:
-        music_playing = True
-        pygame.mixer.music.load('music/menutrack.ogg')
-        pygame.mixer.music.play(-1)
+
 
     textrect = start.get_rect()
     textrect.centerx = game_display.get_rect().centerx
