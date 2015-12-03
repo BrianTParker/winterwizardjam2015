@@ -34,12 +34,19 @@ player_posy = screen_height - player_height
 snowman=pygame.image.load("images/snowman.png").convert_alpha()
 snowman = pygame.transform.scale(snowman, (player_width, player_height))
 
+snowman_slightly_melted=pygame.image.load("images/slightly_melted.png").convert_alpha()
+snowman_slightly_melted = pygame.transform.scale(snowman_slightly_melted, (player_width, player_height))
+
+snowman_mostly_melted=pygame.image.load("images/mostly_melted.png").convert_alpha()
+snowman_mostly_melted = pygame.transform.scale(snowman_mostly_melted, (player_width, player_height))
+
 water_drop = pygame.image.load("images/drop.png").convert_alpha()
 water_drop = pygame.transform.scale(water_drop, (20, 50))
 
 melted=pygame.image.load("images/melted.png").convert_alpha()
 melted = pygame.transform.scale(melted, (player_width, player_height))
 
+drop_list = []
 
 fps = 60
 clock = pygame.time.Clock()
@@ -61,6 +68,8 @@ class Player(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.rect = Rect(self.posx, self.posy, self.width, self.height)
+        self.mask = pygame.mask.from_surface(self.image)
+        self.health = 3
 
     def move_right(self):
         self.posx += self.speed
@@ -77,8 +86,18 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = self.posx
         self.rect.y = self.posy
 
-    def update_image(self, new_image):
-        self.image = new_image
+    def update_image(self):
+        if self.health == 3:
+            self.image = snowman
+        elif self.health == 2:
+            self.image = snowman_slightly_melted
+        elif self.health == 1:
+            self.image = snowman_mostly_melted
+        elif self.health == 0:
+            self.image = melted
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = Rect(self.posx, self.posy, self.width, self.height)
+
 
     def change_speed(self, new_speed):
         self.speed = new_speed
@@ -88,10 +107,26 @@ class Player(pygame.sprite.Sprite):
         self.posy = random.randint(-500, -100)
         self.rect = Rect(self.posx, self.posy, 10, self.height)
 
-player = Player(snowman, player_speed, player_posx, player_posy, player_width/2, player_height)
+    def subtract_health(self):
+        self.health -= 1
+        if self.health < 0:
+            health = 0
+
+    def add_health(slef):
+        self.health += 1
+        if self.health > 3:
+            self.health = 3
+
+
 drop_list = []
+player = Player(snowman, player_speed, player_posx, player_posy, player_width/2, player_height)
 for x in range(0,4):
     drop_list.append(Player(water_drop, 4, random.randint(100, screen_width - 100), random.randint(-500, -100), 20, 50))
+
+
+
+hit_buffer = 0
+just_got_hit = False
 
 music_playing = False
 def intro_screen():
@@ -126,11 +161,20 @@ def intro_screen():
 
 def increase_drop_rate():
     for drops in drop_list:
-        drops.speed += 5
+        drops.speed += .5
 
 
 kick_off_timer = False
+
+
+
 while True:
+
+    if just_got_hit == True:
+        hit_buffer += 1
+        if hit_buffer >= 50:
+            hit_buffer = 0
+            just_got_hit = False
 
     game_display.fill(BLUE)
     for event in pygame.event.get():
@@ -141,7 +185,7 @@ while True:
         if game_state == 'PLAY':
             if event.type == USEREVENT+1:
                 time += 1
-                if time % 10 == 0:
+                if time % 2 == 0:
                     increase_drop_rate()
 
     if game_state == 'PLAY':
@@ -174,8 +218,10 @@ while True:
             game_display.blit(drop1.image, (drop1.posx, drop1.posy))
             if drop1.posy >= screen_height + drop1.height:
                 drop1.get_random_position()
-            if pygame.sprite.collide_mask(player, drop1):
-                player.update_image(melted)
+            if pygame.sprite.collide_mask(player, drop1) and just_got_hit == False:
+                just_got_hit = True
+                player.subtract_health()
+                player.update_image()
 
 
 
