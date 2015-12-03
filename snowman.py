@@ -41,7 +41,7 @@ snowman_mostly_melted=pygame.image.load("images/mostly_melted.png").convert_alph
 snowman_mostly_melted = pygame.transform.scale(snowman_mostly_melted, (player_width, player_height))
 
 water_drop = pygame.image.load("images/drop.png").convert_alpha()
-water_drop = pygame.transform.scale(water_drop, (20, 50))
+water_drop = pygame.transform.scale(water_drop, (20, 40))
 
 melted=pygame.image.load("images/melted.png").convert_alpha()
 melted = pygame.transform.scale(melted, (player_width, player_height))
