@@ -207,7 +207,7 @@ while True:
                 player.move_left()
 
         if keystate[K_RIGHT]:
-            if player.posx <= screen_width - (player.width):
+            if player.posx <= screen_width - (player_width):
                 player.move_right()
 
 
