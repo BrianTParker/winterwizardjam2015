@@ -1,14 +1,29 @@
 import pygame
 import sys
 from pygame.locals import *
-from enum import Enum
 import random
 import threading
+import mysql.connector
+from tkinter import *
+import inputbox
+
 
 BLUE = (81, 95, 255)
 BLACK = (0, 0, 0)
 
 pygame.init()
+cnx = ""
+connected = False
+
+try:
+  cnx = mysql.connector.connect(user='player', password='Password!',
+   host='bp72520.webfactional.com', port = '31730',
+   database='leaderboards')
+  connected = True
+
+except mysql.connector.Error as err:
+  print("Something went wrong: {}".format(err))
+
 
 
 music_playing = False
@@ -77,6 +92,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = Rect(self.posx, self.posy, self.width, self.height)
         self.mask = pygame.mask.from_surface(self.image)
         self.health = 3
+        self.score = 0
 
     def move_right(self):
         self.posx += self.speed
@@ -124,6 +140,27 @@ class Player(pygame.sprite.Sprite):
         if self.health > 3:
             self.health = 3
 
+class MyDialog:
+
+    def __init__(self, parent):
+
+        top = self.top = Toplevel(parent)
+
+        Label(top, text="Value").pack()
+
+        self.e = Entry(top)
+        self.e.pack(padx=5)
+
+        b = Button(top, text="OK", command=self.ok)
+        b.pack(pady=5)
+
+    def ok(self):
+
+        print("value is"), self.e.get()
+
+        self.top.destroy()
+
+
 
 drop_list = []
 player = Player(snowman, player_speed, player_posx, player_posy, player_width/2, player_height)
@@ -134,6 +171,23 @@ for x in range(0,4):
 
 hit_buffer = 0
 just_got_hit = False
+
+
+def display_box(screen, message):
+  "Print a message in a box in the middle of the screen"
+  fontobject = pygame.font.Font(None,18)
+  pygame.draw.rect(screen, (0,0,0),
+                   ((screen.get_width() / 2) - 100,
+                    (screen.get_height() / 2) - 10,
+                    200,20), 0)
+  pygame.draw.rect(screen, (255,255,255),
+                   ((screen.get_width() / 2) - 102,
+                    (screen.get_height() / 2) - 12,
+                    204,24), 1)
+  if len(message) != 0:
+    screen.blit(fontobject.render(message, 1, (255,255,255)),
+                ((screen.get_width() / 2) - 100, (screen.get_height() / 2) - 10))
+
 
 def intro_screen():
     global music_playing
@@ -153,6 +207,26 @@ def intro_screen():
     instruction_font = pygame.font.Font(None, 50)
     start = instruction_font.render("Press Space Bar to start!", 1, BLACK)
 
+    high_score_count = 1
+    high_score_offset = 20
+    score_font = pygame.font.Font(None, 30)
+    try:
+        cursor = cnx.cursor()
+        query = ("SELECT userName, score FROM scores "
+         "order by score desc limit 10")
+
+        cursor.execute(query)
+        for (userName, score) in cursor:
+            score = score_font.render(str(high_score_count) + ". " + userName + "   " + str(score), 1, BLACK)
+            game_display.blit(score, (50, 200 + high_score_offset))
+
+            high_score_offset += 40
+            high_score_count += 1
+        cursor.close()
+
+    except mysql.connector.Error as err:
+        print("Something went wrong: {}".format(err))
+
 
 
     textrect = start.get_rect()
@@ -161,15 +235,27 @@ def intro_screen():
     game_display.blit(start, textrect)
 
 
+def reset_game():
+    time = 0
+    drop_list = []
+    player = Player(snowman, player_speed, player_posx, player_posy, player_width/2, player_height)
+    for x in range(0,4):
+        drop_list.append(Player(water_drop, 4, random.randint(10, screen_width - 100), random.randint(-500, -100), 20, 50))
+    game_state = 'PLAY'
+
+
+
 
 def increase_drop_rate():
     for drops in drop_list:
         drops.speed += .5
 
-
+submit_score = True
 kick_off_timer = False
 
-
+def mhello():
+    pass
+    return
 
 while True:
 
@@ -177,13 +263,14 @@ while True:
         game_state = 'DEAD'
     if just_got_hit == True:
         hit_buffer += 1
-        if hit_buffer >= 100:
+        if hit_buffer >= 50:
             hit_buffer = 0
             just_got_hit = False
 
     game_display.fill(BLUE)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            cnx.close()
             pygame.quit()
             quit()
 
@@ -242,6 +329,30 @@ while True:
     elif game_state == 'DEAD':
         game_display.blit(counter, textrect)
         game_display.blit(player.image, (player.posx, player.posy))
+        player.score = time
+
+        if submit_score == True:
+
+            answer = inputbox.ask(game_display, "Your name")
+            submit_score = False
+            if len(answer) > 0:
+
+                try:
+                    cursor = cnx.cursor()
+
+                    add_score = ("INSERT INTO scores "
+                         "(userName, score) "
+                         "VALUES (%s, %s)")
+                    values = (answer, time)
+                    cursor.execute(add_score, values)
+                    cnx.commit()
+                    cursor.close()
+                except mysql.connector.Error as err:
+                    print("Something went wrong: {}".format(err))
+
+
+
+
     pygame.display.update()
     clock.tick(fps)
 
