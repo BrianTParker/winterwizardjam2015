@@ -259,6 +259,8 @@ while True:
 
     if player.health == 0:
         game_state = 'DEAD'
+        music_playing = False
+        pygame.mixer.music.stop()
     if just_got_hit == True:
         hit_buffer += 1
         if hit_buffer >= 50:
@@ -280,6 +282,10 @@ while True:
 
     if game_state == 'PLAY':
 
+        if music_playing == False:
+            music_playing = True
+            pygame.mixer.music.load('music/mainsong.mp3')
+            pygame.mixer.music.play(-1)
 
         counter_font = pygame.font.Font("FreeSansBold.ttf", 70)
         counter = counter_font.render(str(time), 1, BLACK)
@@ -324,6 +330,7 @@ while True:
         if keystate[K_SPACE]:
             game_state = 'PLAY'
             pygame.mixer.music.stop()
+            music_playing = False
     elif game_state == 'DEAD':
         game_display.blit(counter, textrect)
         game_display.blit(player.image, (player.posx, player.posy))
