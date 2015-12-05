@@ -4,7 +4,6 @@ from pygame.locals import *
 import random
 import threading
 import mysql.connector
-from tkinter import *
 import inputbox
 
 
@@ -33,11 +32,6 @@ BITSIZE = -16  # unsigned 16 bit
 CHANNELS = 2   # 1 == mono, 2 == stereo
 BUFFER = 1024  # audio buffer size in no. of samples
 
-if music_playing == False:
-    music_playing = True
-    pygame.mixer.music.load('music/menutrack.ogg')
-    pygame.mixer.music.play(-1)
-
 
 pygame.mixer.init(FREQ, BITSIZE, CHANNELS, BUFFER)
 
@@ -56,11 +50,11 @@ player_posy = screen_height - player_height
 snowman=pygame.image.load("images/snowman.png").convert_alpha()
 snowman = pygame.transform.scale(snowman, (player_width, player_height))
 
-snowman_slightly_melted=pygame.image.load("images/slightly_melted.png").convert_alpha()
-snowman_slightly_melted = pygame.transform.scale(snowman_slightly_melted, (player_width, player_height))
+snowman_slightly_melted=pygame.image.load("images/slightly_melted2.png").convert_alpha()
+#snowman_slightly_melted = pygame.transform.scale(snowman_slightly_melted, (player_width, player_height))
 
-snowman_mostly_melted=pygame.image.load("images/mostly_melted.png").convert_alpha()
-snowman_mostly_melted = pygame.transform.scale(snowman_mostly_melted, (player_width, player_height))
+snowman_mostly_melted=pygame.image.load("images/mostly_melted2.png").convert_alpha()
+#snowman_mostly_melted = pygame.transform.scale(snowman_mostly_melted, (player_width, player_height))
 
 water_drop = pygame.image.load("images/drop.png").convert_alpha()
 water_drop = pygame.transform.scale(water_drop, (20, 40))
@@ -83,6 +77,7 @@ pygame.time.set_timer(USEREVENT+1, 1000)#1 second is 1000 milliseconds
 class Player(pygame.sprite.Sprite):
     def __init__(self, image, speed, posx, posy, width, height):
         pygame.sprite.Sprite.__init__(self)
+
         self.image = image
         self.speed = speed
         self.posx = posx
@@ -110,12 +105,18 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = self.posy
 
     def update_image(self):
+        global player_height
         if self.health == 3:
             self.image = snowman
         elif self.health == 2:
             self.image = snowman_slightly_melted
+
+            self.height = 210
+            self.posy = screen_height - self.height
         elif self.health == 1:
             self.image = snowman_mostly_melted
+            self.height = 140
+            self.posy = screen_height - self.height
         elif self.health == 0:
             self.image = melted
         self.mask = pygame.mask.from_surface(self.image)
@@ -173,43 +174,34 @@ hit_buffer = 0
 just_got_hit = False
 
 
-def display_box(screen, message):
-  "Print a message in a box in the middle of the screen"
-  fontobject = pygame.font.Font(None,18)
-  pygame.draw.rect(screen, (0,0,0),
-                   ((screen.get_width() / 2) - 100,
-                    (screen.get_height() / 2) - 10,
-                    200,20), 0)
-  pygame.draw.rect(screen, (255,255,255),
-                   ((screen.get_width() / 2) - 102,
-                    (screen.get_height() / 2) - 12,
-                    204,24), 1)
-  if len(message) != 0:
-    screen.blit(fontobject.render(message, 1, (255,255,255)),
-                ((screen.get_width() / 2) - 100, (screen.get_height() / 2) - 10))
-
-
 def intro_screen():
     global music_playing
-    title_font = pygame.font.Font(None, 100)
+
+    if music_playing == False:
+        music_playing = True
+        pygame.mixer.music.load('music/menutrack.mp3')
+        pygame.mixer.music.play(-1)
+
+
+    title_font = pygame.font.Font("FreeSansBold.ttf", 70)
     title = title_font.render("Winter Wizard Jam:", 1, BLACK)
     textrect = title.get_rect()
     textrect.centerx = game_display.get_rect().centerx
-    textrect.top = game_display.get_rect().top + 40
+    textrect.top = game_display.get_rect().top
     game_display.blit(title, textrect)
 
     title2 = title_font.render("Snowman Panic", 1, BLACK)
     textrect = title2.get_rect()
     textrect.centerx = game_display.get_rect().centerx
-    textrect.top = game_display.get_rect().top + 110
+    textrect.top = game_display.get_rect().top + 60
     game_display.blit(title2, textrect)
 
-    instruction_font = pygame.font.Font(None, 50)
+    instruction_font = pygame.font.Font("FreeSansBold.ttf", 50)
     start = instruction_font.render("Press Space Bar to start!", 1, BLACK)
 
     high_score_count = 1
-    high_score_offset = 20
-    score_font = pygame.font.Font(None, 30)
+    high_score_offset = 10
+    score_font = pygame.font.Font("FreeSansBold.ttf", 20)
     try:
         cursor = cnx.cursor()
         query = ("SELECT userName, score FROM scores "
@@ -218,9 +210,9 @@ def intro_screen():
         cursor.execute(query)
         for (userName, score) in cursor:
             score = score_font.render(str(high_score_count) + ". " + userName + "   " + str(score), 1, BLACK)
-            game_display.blit(score, (50, 200 + high_score_offset))
+            game_display.blit(score, (50, 150 + high_score_offset))
 
-            high_score_offset += 40
+            high_score_offset += 30
             high_score_count += 1
         cursor.close()
 
@@ -236,12 +228,18 @@ def intro_screen():
 
 
 def reset_game():
+    global time
+    global player
+    global drop_list
+    global game_state
+    global music_playing
+    music_playing = False
     time = 0
     drop_list = []
     player = Player(snowman, player_speed, player_posx, player_posy, player_width/2, player_height)
     for x in range(0,4):
         drop_list.append(Player(water_drop, 4, random.randint(10, screen_width - 100), random.randint(-500, -100), 20, 50))
-    game_state = 'PLAY'
+    game_state = 'INTRO'
 
 
 
@@ -283,7 +281,7 @@ while True:
     if game_state == 'PLAY':
 
 
-        counter_font = pygame.font.Font(None, 100)
+        counter_font = pygame.font.Font("FreeSansBold.ttf", 70)
         counter = counter_font.render(str(time), 1, BLACK)
         textrect = counter.get_rect()
         textrect.centerx = game_display.get_rect().centerx
@@ -330,28 +328,30 @@ while True:
         game_display.blit(counter, textrect)
         game_display.blit(player.image, (player.posx, player.posy))
         player.score = time
-
-        if submit_score == True:
-
-            answer = inputbox.ask(game_display, "Your name")
-            submit_score = False
-            if len(answer) > 0:
-
-                try:
-                    cursor = cnx.cursor()
-
-                    add_score = ("INSERT INTO scores "
-                         "(userName, score) "
-                         "VALUES (%s, %s)")
-                    values = (answer, time)
-                    cursor.execute(add_score, values)
-                    cnx.commit()
-                    cursor.close()
-                except mysql.connector.Error as err:
-                    print("Something went wrong: {}".format(err))
+        game_state = 'INTRO'
 
 
+        answer = inputbox.ask(game_display, "Your name")
 
+
+        if len(answer) > 0:
+
+            try:
+                cursor = cnx.cursor()
+
+                add_score = ("INSERT INTO scores "
+                     "(userName, score) "
+                     "VALUES (%s, %s)")
+                values = (answer, time)
+                cursor.execute(add_score, values)
+                cnx.commit()
+                cursor.close()
+            except mysql.connector.Error as err:
+                print("Something went wrong: {}".format(err))
+
+
+        reset_game()
+        print(time)
 
     pygame.display.update()
     clock.tick(fps)
