@@ -65,7 +65,7 @@ snow_flake = pygame.transform.scale(snow_flake, (20, 40))
 
 
 melted=pygame.image.load("images/melted.png").convert_alpha()
-melted = pygame.transform.scale(melted, (player_width, player_height))
+#melted = pygame.transform.scale(melted, (player_width, player_height))
 
 drop_list = []
 
@@ -126,8 +126,9 @@ class Player(pygame.sprite.Sprite):
             self.height = 140
             self.posy = screen_height - self.height
         elif self.health == 0:
+            self.height = 237
+            self.posy = screen_height - self.height
             self.image = melted
-        self.mask = pygame.mask.from_surface(self.image)
         self.get_new_rect()
 
 
@@ -169,8 +170,7 @@ class Object(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.rect = Rect(self.posx + 50, self.posy, self.width, self.height)
-        self.health = 3
-        self.score = 0
+
 
     def move_right(self):
         self.posx += self.speed
@@ -188,22 +188,7 @@ class Object(pygame.sprite.Sprite):
         self.rect.y = self.posy
 
     def update_image(self):
-        global player_height
-        if self.health == 3:
-            self.image = snowman
-        elif self.health == 2:
-            self.image = snowman_slightly_melted
-
-            self.height = 210
-            self.posy = screen_height - self.height
-        elif self.health == 1:
-            self.image = snowman_mostly_melted
-            self.height = 140
-            self.posy = screen_height - self.height
-        elif self.health == 0:
-            self.image = melted
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = Rect(self.posx, self.posy, self.width, self.height)
+        pass
 
     def get_new_rect(self):
         self.rect = Rect(self.posx, self.posy, self.width, self.height)
@@ -328,9 +313,56 @@ def increase_drop_rate():
 submit_score = True
 kick_off_timer = False
 
-def mhello():
-    pass
-    return
+##Input box code##################################
+def get_key():
+  while 1:
+
+    event = pygame.event.poll()
+    if event.type == KEYDOWN:
+      return event.key
+    elif event.type == pygame.QUIT:
+        cnx.close()
+        pygame.quit()
+        quit()
+    else:
+      pass
+
+def display_box(screen, message):
+  "Print a message in a box in the middle of the screen"
+  fontobject = pygame.font.Font("FreeSansBold.ttf",10)
+  pygame.draw.rect(screen, (255,255,255),
+                   ((screen.get_width() / 2) - 100,
+                    (screen.get_height() / 2) - 10,
+                    200,20), 0)
+  pygame.draw.rect(screen, (0,0,0),
+                   ((screen.get_width() / 2) - 102,
+                    (screen.get_height() / 2) - 12,
+                    204,24), 1)
+  if len(message) != 0:
+    screen.blit(fontobject.render(message, 1, (0,0,0)),
+                ((screen.get_width() / 2) - 100, (screen.get_height() / 2) - 10))
+  pygame.display.flip()
+
+def ask(screen, question):
+  "ask(screen, question) -> answer"
+  pygame.font.init()
+  current_string = []
+  display_box(screen, question + ": " + " ".join(current_string))
+  while 1:
+    inkey = get_key()
+    game_display.blit(player.image, (player.posx, player.posy))
+    if inkey == K_BACKSPACE:
+      current_string = current_string[0:-1]
+    elif inkey == K_RETURN:
+      break
+    elif inkey == K_MINUS:
+      current_string.append("_")
+    elif inkey <= 127:
+      current_string.append(chr(inkey))
+    display_box(screen, question + ": " + " ".join(current_string))
+  return " ".join(current_string)
+
+##################################################
 
 while True:
 
@@ -385,7 +417,7 @@ while True:
 
         game_display.blit(player.image, (player.posx, player.posy))
         for drop1 in drop_list:
-            
+
 
             drop1.move_down()
 
@@ -416,7 +448,7 @@ while True:
         game_state = 'INTRO'
 
 
-        answer = inputbox.ask(game_display, "Your name")
+        answer = ask(game_display, "Your name")
 
 
         if len(answer) > 0:
@@ -436,7 +468,7 @@ while True:
 
 
         reset_game()
-        print(time)
+
 
     pygame.display.update()
     clock.tick(fps)
