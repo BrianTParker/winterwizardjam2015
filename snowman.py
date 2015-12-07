@@ -59,6 +59,11 @@ snowman_mostly_melted=pygame.image.load("images/mostly_melted2.png").convert_alp
 water_drop = pygame.image.load("images/drop.png").convert_alpha()
 water_drop = pygame.transform.scale(water_drop, (20, 40))
 
+snow_flake = pygame.image.load("images/snowflake.png").convert_alpha()
+snow_flake = pygame.transform.scale(snow_flake, (20, 40))
+
+
+
 melted=pygame.image.load("images/melted.png").convert_alpha()
 melted = pygame.transform.scale(melted, (player_width, player_height))
 
@@ -84,8 +89,86 @@ class Player(pygame.sprite.Sprite):
         self.posy = posy
         self.width = width
         self.height = height
-        self.rect = Rect(self.posx, self.posy, self.width, self.height)
+        self.rect = Rect(self.posx + 40,self.posy + 30,self.width,self.height - 30)
+
+        self.health = 3
+        self.score = 0
+
+    def get_new_rect(self):
+        self.rect = Rect(self.posx + 40,self.posy + 30,self.width,self.height - 30)
+
+    def move_right(self):
+        self.posx += self.speed
+        self.get_new_rect()
+
+    def move_left(self):
+        self.posx -= self.speed
+        self.get_new_rect()
+
+    def move_down(self):
+        self.posy += self.speed
+        self.get_new_rect()
+    def update_rect(self):
+        self.rect.x = self.posx + 40
+        self.rect.y = self.posy
+
+    def update_image(self):
+        global player_height
+        if self.health == 3:
+            self.image = snowman
+        elif self.health == 2:
+            self.image = snowman_slightly_melted
+
+            self.height = 210
+            self.posy = screen_height - self.height
+        elif self.health == 1:
+            self.image = snowman_mostly_melted
+            self.height = 140
+            self.posy = screen_height - self.height
+        elif self.health == 0:
+            self.image = melted
         self.mask = pygame.mask.from_surface(self.image)
+        self.get_new_rect()
+
+
+    def get_new_rect_other(self):
+        self.rect = Rect(self.posx, self.posy, self.width, self.height)
+    def draw_rectangle(self):
+        pygame.draw.rect(game_display,BLACK,(self.posx + 40,self.posy + 30,self.width,self.height - 30))
+
+
+
+    def change_speed(self, new_speed):
+        self.speed = new_speed
+
+    def get_random_position(self):
+        self.posx =  random.randint(10, screen_width - 100)
+        self.posy = random.randint(-500, -100)
+        self.rect = Rect(self.posx, self.posy, 10, self.height)
+
+    def subtract_health(self):
+        self.health -= 1
+        if self.health < 0:
+            health = 0
+
+    def add_health(slef):
+        self.health += 1
+        if self.health > 3:
+            self.health = 3
+
+
+
+class Object(pygame.sprite.Sprite):
+    def __init__(self, image, speed, posx, posy, width, height):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = image
+        self.speed = speed
+        self.posx = posx
+        self.posy = posy
+        self.width = width
+        self.height = height
+        self.rect = Rect(self.posx + 50, self.posy, self.width, self.height)
         self.health = 3
         self.score = 0
 
@@ -122,6 +205,14 @@ class Player(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = Rect(self.posx, self.posy, self.width, self.height)
 
+    def get_new_rect(self):
+        self.rect = Rect(self.posx, self.posy, self.width, self.height)
+    def get_new_rect_other(self):
+        self.rect = Rect(self.posx, self.posy, self.width, self.height)
+    def draw_rectangle(self):
+        pygame.draw.rect(game_display,BLACK,(self.posx,self.posy,self.width,self.height))
+
+
 
     def change_speed(self, new_speed):
         self.speed = new_speed
@@ -141,33 +232,19 @@ class Player(pygame.sprite.Sprite):
         if self.health > 3:
             self.health = 3
 
-class MyDialog:
-
-    def __init__(self, parent):
-
-        top = self.top = Toplevel(parent)
-
-        Label(top, text="Value").pack()
-
-        self.e = Entry(top)
-        self.e.pack(padx=5)
-
-        b = Button(top, text="OK", command=self.ok)
-        b.pack(pady=5)
-
-    def ok(self):
-
-        print("value is"), self.e.get()
-
-        self.top.destroy()
 
 
 
 drop_list = []
 player = Player(snowman, player_speed, player_posx, player_posy, player_width/2, player_height)
-for x in range(0,4):
-    drop_list.append(Player(water_drop, 4, random.randint(10, screen_width - 100), random.randint(-500, -100), 20, 50))
 
+
+for x in range(0,4):
+    new_drop = Object(water_drop, 4, random.randint(10, screen_width - 100), random.randint(-500, -100), 20, 40)
+    new_drop.get_new_rect_other()
+    drop_list.append(new_drop)
+
+snow_flake = Player(snow_flake, 4, 10, -500, 20 , 40)
 
 
 hit_buffer = 0
@@ -305,16 +382,17 @@ while True:
                 player.move_right()
 
 
+
         game_display.blit(player.image, (player.posx, player.posy))
         for drop1 in drop_list:
-
+            
 
             drop1.move_down()
 
             game_display.blit(drop1.image, (drop1.posx, drop1.posy))
             if drop1.posy >= screen_height + drop1.height:
                 drop1.get_random_position()
-            if pygame.sprite.collide_mask(player, drop1) and just_got_hit == False:
+            if drop1.rect.colliderect(player.rect) and just_got_hit == False:
                 just_got_hit = True
                 player.subtract_health()
                 player.update_image()
