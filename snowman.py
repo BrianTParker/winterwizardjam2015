@@ -4,7 +4,7 @@ from pygame.locals import *
 import random
 import threading
 import mysql.connector
-import inputbox
+
 
 
 BLUE = (81, 95, 255)
@@ -116,6 +116,8 @@ class Player(pygame.sprite.Sprite):
         global player_height
         if self.health == 3:
             self.image = snowman
+            self.height = 237
+            self.posy = screen_height - self.height
         elif self.health == 2:
             self.image = snowman_slightly_melted
 
@@ -152,7 +154,7 @@ class Player(pygame.sprite.Sprite):
         if self.health < 0:
             health = 0
 
-    def add_health(slef):
+    def add_health(self):
         self.health += 1
         if self.health > 3:
             self.health = 3
@@ -170,7 +172,8 @@ class Object(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.rect = Rect(self.posx + 50, self.posy, self.width, self.height)
-
+        self.direction = "right"
+        self.initialpos = posx
 
     def move_right(self):
         self.posx += self.speed
@@ -212,11 +215,16 @@ class Object(pygame.sprite.Sprite):
         if self.health < 0:
             health = 0
 
-    def add_health(slef):
+    def add_health(self):
         self.health += 1
         if self.health > 3:
             self.health = 3
 
+    def switch_direction(self):
+        if self.direction == "right":
+            self.direction = "left"
+        else:
+            self.direction = "right"
 
 
 
@@ -229,7 +237,7 @@ for x in range(0,4):
     new_drop.get_new_rect_other()
     drop_list.append(new_drop)
 
-snow_flake = Player(snow_flake, 4, 10, -500, 20 , 40)
+snowflake = Object(snow_flake, 4, random.randint(10, screen_width - 100), -100, 20 , 40)
 
 
 hit_buffer = 0
@@ -363,7 +371,7 @@ def ask(screen, question):
   return " ".join(current_string)
 
 ##################################################
-
+drop_snow_flake = False
 while True:
 
     if player.health == 0:
@@ -388,6 +396,10 @@ while True:
                 time += 1
                 if time % 2 == 0:
                     increase_drop_rate()
+                if time % 10 == 0:
+                    drop_snow_flake = True
+                    snowflake = Object(snow_flake, 4, random.randint(10, screen_width - 100), -100, 20 , 40)
+
 
     if game_state == 'PLAY':
 
@@ -432,7 +444,27 @@ while True:
 
 
 
-        #game_display.blit(melted, (250, 250))
+        if drop_snow_flake == True:
+            game_display.blit(snowflake.image, (snowflake.posx, snowflake.posy))
+            if snowflake.direction == "right":
+                snowflake.posx += snowflake.speed
+            else:
+                snowflake.posx -= snowflake.speed
+            if snowflake.posx >= snowflake.initialpos + 30:
+                snowflake.direction = "left"
+            if snowflake.posx <= snowflake.initialpos - 30:
+                snowflake.direction = "right"
+            snowflake.posy += snowflake.speed
+            snowflake.get_new_rect()
+
+            if(snowflake.rect.colliderect(player.rect)):
+                drop_snow_flake = False
+                player.add_health()
+                player.update_image()
+            elif snowflake.posy >=  screen_height:
+                drop_snow_flake = False
+
+
 
     elif game_state == 'INTRO':
         intro_screen()
