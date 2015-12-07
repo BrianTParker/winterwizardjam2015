@@ -21,7 +21,7 @@ try:
   connected = True
 
 except mysql.connector.Error as err:
-  print("Something went wrong: {}".format(err))
+  pass
 
 
 
@@ -205,7 +205,7 @@ def intro_screen():
     try:
         cursor = cnx.cursor()
         query = ("SELECT userName, score FROM scores "
-         "order by score desc limit 10")
+         "order by score desc, id limit 10")
 
         cursor.execute(query)
         for (userName, score) in cursor:
@@ -217,7 +217,7 @@ def intro_screen():
         cursor.close()
 
     except mysql.connector.Error as err:
-        print("Something went wrong: {}".format(err))
+        pass
 
 
 
@@ -354,7 +354,7 @@ while True:
                 cnx.commit()
                 cursor.close()
             except mysql.connector.Error as err:
-                print("Something went wrong: {}".format(err))
+                pass
 
 
         reset_game()
