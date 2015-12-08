@@ -17,8 +17,8 @@ connected = False
 
 try:
   cnx = mysql.connector.connect(user='player', password='Password!',
-   host='bp72520.webfactional.com', port = '31730',
-   database='leaderboards')
+    host='bp72520.webfactional.com', port = '31730',
+    database='leaderboards')
   if cnx.is_connected():
       print("Connected")
   else:
@@ -27,6 +27,8 @@ try:
 
 except mysql.connector.Error as err:
   pass
+except AttributeError:
+    pass
 
 
 
@@ -350,16 +352,16 @@ def display_box(screen, message):
   "Print a message in a box in the middle of the screen"
   fontobject = pygame.font.Font("FreeSansBold.ttf",10)
   pygame.draw.rect(screen, (255,255,255),
-                   ((screen.get_width() / 2) - 100,
+                   ((screen.get_width() / 2) - 200,
                     (screen.get_height() / 2) - 10,
-                    200,20), 0)
+                    400,20), 0)
   pygame.draw.rect(screen, (0,0,0),
-                   ((screen.get_width() / 2) - 102,
+                   ((screen.get_width() / 2) - 200,
                     (screen.get_height() / 2) - 12,
-                    204,24), 1)
+                    400,24), 1)
   if len(message) != 0:
     screen.blit(fontobject.render(message, 1, (0,0,0)),
-                ((screen.get_width() / 2) - 100, (screen.get_height() / 2) - 10))
+                ((screen.get_width() / 2) - 195, (screen.get_height() / 2) - 10))
   pygame.display.flip()
 
 def ask(screen, question):
@@ -505,6 +507,12 @@ while True:
         player.score = time
         game_state = 'INTRO'
 
+        instructions_font = pygame.font.Font("FreeSansBold.ttf", 15)
+        instructions = instructions_font.render("Just start typing your name and hit enter to submit your score.  Leave it blank and nothing will be submitted", 1, BLACK)
+        textrect = instructions.get_rect()
+        textrect.centerx = game_display.get_rect().centerx
+        textrect.top = game_display.get_rect().top + 250
+        game_display.blit(instructions, textrect)
 
         answer = ask(game_display, "Your name")
 
