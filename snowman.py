@@ -4,6 +4,7 @@ from pygame.locals import *
 import random
 import threading
 import mysql.connector
+import os
 
 
 
@@ -18,6 +19,10 @@ try:
   cnx = mysql.connector.connect(user='player', password='Password!',
    host='bp72520.webfactional.com', port = '31730',
    database='leaderboards')
+  if cnx.is_connected():
+      print("Connected")
+  else:
+      print("Not Connected")
   connected = True
 
 except mysql.connector.Error as err:
@@ -66,6 +71,10 @@ snow_flake = pygame.transform.scale(snow_flake, (20, 40))
 
 melted=pygame.image.load("images/melted.png").convert_alpha()
 #melted = pygame.transform.scale(melted, (player_width, player_height))
+
+hit_sound = pygame.mixer.Sound("sfx/hit.wav")
+snowflake_sound = pygame.mixer.Sound('sfx/snowflake.wav')
+move_sound = pygame.mixer.Sound("sfx/move.wav")
 
 drop_list = []
 
@@ -288,6 +297,8 @@ def intro_screen():
 
     except mysql.connector.Error as err:
         pass
+    except AttributeError:
+        pass
 
 
 
@@ -386,8 +397,17 @@ while True:
 
     game_display.fill(BLUE)
     for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == K_LEFT and game_state == "PLAY":
+                move_sound.play()
+
+            elif event.key == K_RIGHT and game_state == "PLAY":
+                move_sound.play()
         if event.type == pygame.QUIT:
-            cnx.close()
+            try:
+                cnx.close()
+            except:
+                pass
             pygame.quit()
             quit()
 
@@ -396,7 +416,7 @@ while True:
                 time += 1
                 if time % 2 == 0:
                     increase_drop_rate()
-                if time % 10 == 0:
+                if time % 20 == 0:
                     drop_snow_flake = True
                     snowflake = Object(snow_flake, 4, random.randint(10, screen_width - 100), -100, 20 , 40)
 
@@ -437,6 +457,7 @@ while True:
             if drop1.posy >= screen_height + drop1.height:
                 drop1.get_random_position()
             if drop1.rect.colliderect(player.rect) and just_got_hit == False:
+                hit_sound.play()
                 just_got_hit = True
                 player.subtract_health()
                 player.update_image()
@@ -447,9 +468,9 @@ while True:
         if drop_snow_flake == True:
             game_display.blit(snowflake.image, (snowflake.posx, snowflake.posy))
             if snowflake.direction == "right":
-                snowflake.posx += snowflake.speed
+                snowflake.posx += snowflake.speed/2
             else:
-                snowflake.posx -= snowflake.speed
+                snowflake.posx -= snowflake.speed/2
             if snowflake.posx >= snowflake.initialpos + 30:
                 snowflake.direction = "left"
             if snowflake.posx <= snowflake.initialpos - 30:
@@ -459,6 +480,7 @@ while True:
 
             if(snowflake.rect.colliderect(player.rect)):
                 drop_snow_flake = False
+                snowflake_sound.play()
                 player.add_health()
                 player.update_image()
             elif snowflake.posy >=  screen_height:
@@ -474,6 +496,10 @@ while True:
             pygame.mixer.music.stop()
             music_playing = False
     elif game_state == 'DEAD':
+        if music_playing == False:
+            music_playing = True
+            pygame.mixer.music.load('music/deadtrack.mp3')
+            pygame.mixer.music.play(-1)
         game_display.blit(counter, textrect)
         game_display.blit(player.image, (player.posx, player.posy))
         player.score = time
@@ -497,9 +523,14 @@ while True:
                 cursor.close()
             except mysql.connector.Error as err:
                 pass
+            except AttributeError:
+                pass
 
 
         reset_game()
+
+        music_playing = False
+        pygame.mixer.music.stop()
 
 
     pygame.display.update()
