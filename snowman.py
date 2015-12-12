@@ -10,6 +10,7 @@ import os
 
 BLUE = (81, 95, 255)
 BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 
 pygame.init()
 cnx = ""
@@ -68,6 +69,10 @@ water_drop = pygame.transform.scale(water_drop, (20, 40))
 
 snow_flake = pygame.image.load("images/snowflake.png").convert_alpha()
 snow_flake = pygame.transform.scale(snow_flake, (20, 40))
+
+snowman_panic=pygame.image.load("images/snowmanpanic.png").convert_alpha()
+
+spacebar=pygame.image.load("images/spacebar.png").convert_alpha()
 
 
 
@@ -265,20 +270,24 @@ def intro_screen():
 
 
     title_font = pygame.font.Font("FreeSansBold.ttf", 70)
-    title = title_font.render("Winter Wizard Jam:", 1, BLACK)
-    textrect = title.get_rect()
-    textrect.centerx = game_display.get_rect().centerx
-    textrect.top = game_display.get_rect().top
-    game_display.blit(title, textrect)
+    #title = title_font.render("Winter Wizard Jam:", 1, BLACK)
+    #textrect = title.get_rect()
+    #textrect.centerx = game_display.get_rect().centerx
+    #textrect.top = game_display.get_rect().top
+    #game_display.blit(title, textrect)
 
-    title2 = title_font.render("Snowman Panic", 1, BLACK)
-    textrect = title2.get_rect()
-    textrect.centerx = game_display.get_rect().centerx
-    textrect.top = game_display.get_rect().top + 60
-    game_display.blit(title2, textrect)
+    game_display.blit(snowman_panic, (0,0))
 
-    instruction_font = pygame.font.Font("FreeSansBold.ttf", 50)
-    start = instruction_font.render("Press Space Bar to start!", 1, BLACK)
+    #title2 = title_font.render("Snowman Panic", 1, BLACK)
+    #textrect = title2.get_rect()
+    #textrect.centerx = game_display.get_rect().centerx
+    #textrect.top = game_display.get_rect().top + 60
+    #game_display.blit(title2, textrect)
+
+    instruction_font = pygame.font.Font("FreeSansBold.ttf", 30)
+    start = instruction_font.render(" ", 1, BLACK)
+
+    game_display.blit(spacebar, (0, 450))
 
     high_score_count = 1
     high_score_offset = 10
@@ -288,10 +297,13 @@ def intro_screen():
         query = ("SELECT userName, score FROM scores "
          "order by score desc, id limit 10")
 
+        top_scores = instruction_font.render("TOP SCORES", 1, WHITE)
+        game_display.blit(top_scores, (285, 170))
+
         cursor.execute(query)
         for (userName, score) in cursor:
-            score = score_font.render(str(high_score_count) + ". " + userName + "   " + str(score), 1, BLACK)
-            game_display.blit(score, (50, 150 + high_score_offset))
+            score = score_font.render(str(high_score_count) + ". " + userName + "   " + str(score), 1, WHITE)
+            game_display.blit(score, (225, 195 + high_score_offset))
 
             high_score_offset += 30
             high_score_count += 1
@@ -434,7 +446,7 @@ while True:
             pygame.mixer.music.play(-1)
 
         counter_font = pygame.font.Font("FreeSansBold.ttf", 70)
-        counter = counter_font.render(str(time), 1, BLACK)
+        counter = counter_font.render(str(time), 1, WHITE)
         textrect = counter.get_rect()
         textrect.centerx = game_display.get_rect().centerx
         textrect.top = game_display.get_rect().top + 40
@@ -513,7 +525,7 @@ while True:
         game_state = 'INTRO'
 
         instructions_font = pygame.font.Font("FreeSansBold.ttf", 15)
-        instructions = instructions_font.render("Just start typing your name and hit enter to submit your score.  Leave it blank and nothing will be submitted", 1, BLACK)
+        instructions = instructions_font.render("Just start typing your name and hit enter to submit your score.  Leave it blank and nothing will be submitted", 1, WHITE)
         textrect = instructions.get_rect()
         textrect.centerx = game_display.get_rect().centerx
         textrect.top = game_display.get_rect().top + 250
