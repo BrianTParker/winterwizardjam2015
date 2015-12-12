@@ -74,6 +74,7 @@ snowman_panic=pygame.image.load("images/snowmanpanic.png").convert_alpha()
 
 spacebar=pygame.image.load("images/spacebar.png").convert_alpha()
 
+snowman_head=pygame.image.load("images/snowman_head.png").convert_alpha()
 
 
 melted=pygame.image.load("images/melted.png").convert_alpha()
@@ -278,6 +279,11 @@ def intro_screen():
 
     game_display.blit(snowman_panic, (0,0))
 
+    snowman_head_left=pygame.transform.rotate(snowman_head, 20)
+    game_display.blit(snowman_head_left, (-5, 225))
+    snowman_head_right=pygame.transform.rotate(snowman_head, 340)
+    game_display.blit(snowman_head_right, (585, 225))
+
     #title2 = title_font.render("Snowman Panic", 1, BLACK)
     #textrect = title2.get_rect()
     #textrect.centerx = game_display.get_rect().centerx
@@ -298,12 +304,12 @@ def intro_screen():
          "order by score desc, id limit 10")
 
         top_scores = instruction_font.render("TOP SCORES", 1, WHITE)
-        game_display.blit(top_scores, (285, 170))
+        game_display.blit(top_scores, (290, 170))
 
         cursor.execute(query)
         for (userName, score) in cursor:
             score = score_font.render(str(high_score_count) + ". " + userName + "   " + str(score), 1, WHITE)
-            game_display.blit(score, (225, 195 + high_score_offset))
+            game_display.blit(score, (230, 195 + high_score_offset))
 
             high_score_offset += 30
             high_score_count += 1
