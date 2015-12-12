@@ -100,13 +100,13 @@ class Player(pygame.sprite.Sprite):
         self.posy = posy
         self.width = width
         self.height = height
-        self.rect = Rect(self.posx + 40,self.posy + 30,self.width,self.height - 30)
+        self.rect = Rect(self.posx + 50,self.posy + 40,self.width - 20,self.height - 80)
 
         self.health = 3
         self.score = 0
 
     def get_new_rect(self):
-        self.rect = Rect(self.posx + 40,self.posy + 30,self.width,self.height - 30)
+        self.rect = Rect(self.posx + 50,self.posy + 40,self.width - 20,self.height - 80)
 
     def move_right(self):
         self.posx += self.speed
@@ -148,7 +148,7 @@ class Player(pygame.sprite.Sprite):
     def get_new_rect_other(self):
         self.rect = Rect(self.posx, self.posy, self.width, self.height)
     def draw_rectangle(self):
-        pygame.draw.rect(game_display,BLACK,(self.posx + 40,self.posy + 30,self.width,self.height - 30))
+        pygame.draw.rect(game_display,BLACK,(self.posx + 50,self.posy + 40,self.width - 20,self.height - 80))
 
 
 
@@ -330,6 +330,9 @@ def reset_game():
 def increase_drop_rate():
     for drops in drop_list:
         drops.speed += .5
+        #if drops.speed > 15.5:
+            #drops.speed = 15.5
+
 
 submit_score = True
 kick_off_timer = False
@@ -450,6 +453,7 @@ while True:
 
 
         game_display.blit(player.image, (player.posx, player.posy))
+        #player.draw_rectangle()
         for drop1 in drop_list:
 
 
@@ -498,6 +502,7 @@ while True:
             pygame.mixer.music.stop()
             music_playing = False
     elif game_state == 'DEAD':
+        print(drop_list[0].speed)
         if music_playing == False:
             music_playing = True
             pygame.mixer.music.load('music/deadtrack.mp3')
